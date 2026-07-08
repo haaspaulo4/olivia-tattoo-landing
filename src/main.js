@@ -342,3 +342,73 @@ function initSmoothScroll() {
     });
   });
 }
+
+// ========================================
+// Legal & Cookies
+// ========================================
+const legalTexts = {
+  termos: `
+    <p>Bem-vindo ao site da Olivia Tattoo. Ao acessar e utilizar este site, você concorda com os termos e condições abaixo descritos.</p>
+    <h4>1. Uso do Site</h4>
+    <p>O conteúdo deste site é para seu uso informativo e pessoal. É proibida a cópia, reprodução ou distribuição não autorizada das imagens (tatuagens) aqui presentes, que são de propriedade intelectual da artista.</p>
+    <h4>2. Orçamentos e Agendamentos</h4>
+    <p>Os orçamentos solicitados via WhatsApp são estimativas e não garantem o agendamento da sessão até o pagamento do sinal (quando exigido).</p>
+    <h4>3. Cuidados e Resultados</h4>
+    <p>A cicatrização e o resultado final da tatuagem dependem dos cuidados do cliente pós-sessão, isentando a artista de responsabilidades sobre má cicatrização por descuido.</p>
+  `,
+  privacidade: `
+    <p>A sua privacidade é importante para nós. Esta política explica como coletamos e usamos suas informações.</p>
+    <h4>1. Coleta de Dados</h4>
+    <p>Nós não coletamos dados pessoais diretamente no site. Qualquer informação fornecida por você via WhatsApp será utilizada exclusivamente para fins de contato, orçamento e agendamento da sua tatuagem.</p>
+    <h4>2. Uso de Imagens</h4>
+    <p>Fotos da sua tatuagem ou da sessão só serão publicadas no nosso portfólio (site/Instagram) mediante o seu consentimento prévio e verbal ou escrito no dia da sessão.</p>
+    <h4>3. Compartilhamento</h4>
+    <p>Suas informações de contato jamais serão vendidas ou repassadas a terceiros.</p>
+  `,
+  cookies: `
+    <p>Este site utiliza cookies essenciais para garantir o funcionamento correto da página e cookies de desempenho (como fontes ou assets em cache) para melhorar a velocidade do carregamento.</p>
+    <h4>O que são Cookies?</h4>
+    <p>Cookies são pequenos arquivos de texto salvos no seu navegador para armazenar preferências básicas.</p>
+    <h4>Como utilizamos?</h4>
+    <p>No momento, usamos apenas cookies técnicos que não rastreiam seu comportamento de navegação nem dados pessoais. Ao clicar em "Aceitar" no aviso de cookies, seu navegador lembrará da sua escolha para não exibir o aviso novamente.</p>
+  `
+};
+
+const legalTitles = {
+  termos: "Termos de Uso",
+  privacidade: "Políticas de Privacidade",
+  cookies: "Política de Cookies"
+};
+
+// Modals
+document.querySelectorAll('[data-modal]').forEach(trigger => {
+  trigger.addEventListener('click', () => {
+    const type = trigger.getAttribute('data-modal');
+    document.getElementById('legalTitle').textContent = legalTitles[type];
+    document.getElementById('legalBody').innerHTML = legalTexts[type];
+    document.getElementById('legalModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+});
+
+document.getElementById('legalClose')?.addEventListener('click', () => {
+  document.getElementById('legalModal').classList.remove('active');
+  document.body.style.overflow = '';
+});
+
+// Cookie Banner
+const cookieBanner = document.getElementById('cookieBanner');
+const acceptBtn = document.getElementById('acceptCookies');
+
+if (cookieBanner && acceptBtn) {
+  if (!localStorage.getItem('cookiesAccepted')) {
+    setTimeout(() => {
+      cookieBanner.classList.add('active');
+    }, 1000);
+  }
+
+  acceptBtn.addEventListener('click', () => {
+    localStorage.setItem('cookiesAccepted', 'true');
+    cookieBanner.classList.remove('active');
+  });
+}
