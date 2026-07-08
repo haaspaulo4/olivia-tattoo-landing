@@ -283,6 +283,12 @@ a {
   border-bottom: 1px solid var(--color-border);
 }
 
+.navbar.menu-open {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom: none !important;
+}
+
 .nav-container {
   max-width: var(--container-max);
   margin: 0 auto;

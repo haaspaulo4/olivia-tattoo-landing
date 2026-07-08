@@ -67,12 +67,14 @@ function initNavbar() {
 function initMobileMenu() {
   const toggle = document.getElementById('navToggle');
   const links = document.getElementById('navLinks');
+  const navbar = document.getElementById('navbar');
 
-  if (!toggle || !links) return;
+  if (!toggle || !links || !navbar) return;
 
   toggle.addEventListener('click', () => {
     toggle.classList.toggle('active');
     links.classList.toggle('active');
+    navbar.classList.toggle('menu-open');
     document.body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
   });
 
@@ -81,6 +83,7 @@ function initMobileMenu() {
     link.addEventListener('click', () => {
       toggle.classList.remove('active');
       links.classList.remove('active');
+      navbar.classList.remove('menu-open');
       document.body.style.overflow = '';
     });
   });
