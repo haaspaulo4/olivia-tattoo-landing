@@ -86,9 +86,21 @@ Junto com a Landing Page, desenvolvemos um **Sistema Desktop de Gestão e CRM** 
   - *Confirmação de Agendamento* automático.
   - Lembrete de *Cobrança* e saldo pendente.
   - Mensagem de *Pós-Venda* com instruções de cicatrização.
+- **QR Code na Interface Gráfica:** O QR Code para conectar o WhatsApp é exibido diretamente na tela do sistema (funciona tanto em modo dev quanto no executável compilado).
 - **Assistente IA Integrado:** Chatbot para WhatsApp usando IA (Groq) para responder dúvidas automaticamente.
 - **Módulo Financeiro:** Controle de caixa, transações e relatórios em PDF.
 - **Interface Gráfica Moderna:** Desenvolvido com `customtkinter` (Dark Mode nativo).
+
+### 📦 Dependências Principais
+| Pacote | Uso |
+|--------|-----|
+| `customtkinter` | Interface gráfica moderna (Dark Mode) |
+| `neonize` | Integração WhatsApp (protocolo nativo) |
+| `segno` | Geração de QR Code para autenticação |
+| `groq` | IA para chatbot automático |
+| `Pillow` | Manipulação de imagens |
+| `reportlab` | Geração de relatórios em PDF |
+| `matplotlib` | Gráficos financeiros |
 
 ### 🚀 Como rodar o CRM localmente
 
@@ -109,7 +121,20 @@ Junto com a Landing Page, desenvolvemos um **Sistema Desktop de Gestão e CRM** 
    ```
 
 4. **Conectar o WhatsApp:**
-   Ao abrir, acesse a aba "WhatsApp", clique em "Conectar WhatsApp" e escaneie o QR Code que aparecerá no terminal com o celular do estúdio.
+   Ao abrir, acesse a aba "WhatsApp", clique em "🔌 Conectar" e escaneie o QR Code que aparecerá **na interface gráfica** com o celular do estúdio.
+
+### 🔨 Como compilar o executável (.exe)
+
+Para gerar um executável standalone que roda sem precisar do Python instalado:
+
+```bash
+cd sistema-tattoo
+build_debug.bat
+```
+
+O executável será gerado em `dist/Sistema-OliviaTattoo.exe`. Basta distribuir esse arquivo único.
+
+> **Nota:** O build usa PyInstaller com `--collect-all neonize` e `--collect-all segno` para garantir que todas as dependências nativas sejam incluídas.
 
 ---
 <div align="center">

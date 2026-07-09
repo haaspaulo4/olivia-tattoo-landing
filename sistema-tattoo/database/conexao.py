@@ -2,7 +2,16 @@ import sqlite3
 import os
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent.parent / "data" / "sistema_tattoo.db"
+import sys
+
+if getattr(sys, 'frozen', False):
+    # Rodando como executável compilado (.exe)
+    base_dir = Path(sys.executable).parent
+else:
+    # Rodando como script Python normal
+    base_dir = Path(__file__).parent.parent
+
+DB_PATH = base_dir / "data" / "sistema_tattoo.db"
 
 
 def get_conexao():

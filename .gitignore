@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# PyInstaller
+sistema-tattoo/build/
+sistema-tattoo/dist/
+sistema-tattoo/venv_build/
+*.spec
+
+# Neonize sessions (dados locais de sessão WhatsApp)
+olivia_tattoo
+teste_qr

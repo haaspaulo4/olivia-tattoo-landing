@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador Canva Clone — Olivia Tattoo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Jost:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Pacifico&family=Dancing+Script:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+
+    <style>
+        :root {
+            --ui-bg: #0b0c10; --ui-panel: rgba(22, 23, 29, 0.95); --ui-border: rgba(255, 255, 255, 0.1);
+            --ui-text: #c5c6c7; --ui-text-bright: #ffffff; --ui-accent: #66fcf1; --ui-accent-hover: #45a29e;
+            --ui-input: rgba(0, 0, 0, 0.4); --ui-input-border: rgba(255, 255, 255, 0.15); --glass-blur: blur(12px);
+        }
+
+        /* THEMES */
+        .theme-v1 { --bg-main:#1B1613; --bg-alt:#241D18; --paper-main:#F3EDE4; --accent:#C9A671; --accent-soft:#E4C99A; --text-light:#EDE6DA; --text-dark:#2B2420; --line-color:rgba(201,166,113,0.35); --font-heading:'Cormorant Garamond', serif; --font-body:'Jost', sans-serif; --font-hand:'Caveat', cursive; }
+        .theme-v2 { --bg-main:#EAE0C8; --bg-alt:#E1D4B4; --paper-main:#181310; --accent:#9C3B2C; --accent-soft:#5C6B4E; --text-light:#181310; --text-dark:#EAE0C8; --line-color:rgba(24,19,16,0.55); --font-heading:'Fraunces', serif; --font-body:'IBM Plex Mono', monospace; --font-hand:'Caveat', cursive; }
+        .theme-v3 { --bg-main:#0a0a12; --bg-alt:#13131f; --paper-main:#0a0a12; --accent:#ff2d7b; --accent-soft:#00e5ff; --text-light:#ffffff; --text-dark:#0a0a12; --line-color:rgba(0,229,255,0.3); --font-heading:'Space Grotesk', sans-serif; --font-body:'IBM Plex Mono', monospace; --font-hand:'Caveat', cursive; }
+
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; background: var(--ui-bg); font-family: 'Inter', sans-serif; color: var(--ui-text); height: 100vh; overflow: hidden; display: flex; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--ui-border); border-radius: 4px; }
+
+        .sidebar { width: 380px; background: var(--ui-panel); backdrop-filter: var(--glass-blur); border-right: 1px solid var(--ui-border); display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-header { padding: 24px; border-bottom: 1px solid var(--ui-border); }
+        .sidebar-header h1 { margin: 0; font-size: 20px; font-weight: 600; color: var(--ui-text-bright); }
+        .sidebar-header p { margin: 4px 0 0; font-size: 12px; color: var(--ui-accent); font-weight: 500; }
+        .sidebar-content { flex: 1; overflow-y: auto; padding: 24px; }
+
+        .section { margin-bottom: 24px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--ui-border); border-radius: 8px; overflow: hidden; }
+        .section-header { padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--ui-text-bright); background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--ui-border); display: flex; justify-content: space-between; cursor: pointer; user-select: none; }
+        .section-body { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; font-weight: 500; text-transform: uppercase; color: rgba(255,255,255,0.6); }
+        select, input[type="range"] { width: 100%; background: var(--ui-input); border: 1px solid var(--ui-input-border); color: var(--ui-text-bright); padding: 10px 12px; border-radius: 6px; font-size: 13px; }
+        
+        .theme-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .theme-btn { background: var(--ui-input); border: 1px solid var(--ui-input-border); padding: 12px 8px; border-radius: 6px; cursor: pointer; font-size: 11px; text-align: center; transition: 0.2s; }
+        .theme-btn.active { background: rgba(102, 252, 241, 0.1); border-color: var(--ui-accent); color: var(--ui-accent); }
+        
+        .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .tpl-btn { background: var(--ui-input); border: 1px solid var(--ui-border); padding: 16px 8px; border-radius: 8px; cursor: pointer; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center; transition: 0.2s; }
+        .tpl-btn:hover { border-color: var(--ui-accent); background: rgba(102, 252, 241, 0.05); }
+        .tpl-btn .icon { font-size: 24px; }
+        .tpl-btn .text { font-size: 11px; font-weight: 600; color: white; }
+
+        .btn-group { display: flex; gap: 8px; padding: 24px; border-top: 1px solid var(--ui-border); background: rgba(0,0,0,0.3); }
+        .btn { flex: 1; padding: 12px; border: 1px solid var(--ui-border); border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: #1f2833; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:hover { background: #2b3a4a; }
+        .btn-primary { background: var(--ui-accent); color: #000; border: none; }
+        .btn-primary:hover { background: var(--ui-accent-hover); }
+
+        .add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .add-grid.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .add-btn { background: var(--ui-input); border: 1px dashed var(--ui-accent); color: var(--ui-text-bright); padding: 12px 6px; border-radius: 6px; cursor: pointer; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: 0.2s; text-align: center; }
+        .add-btn:hover { background: rgba(102,252,241,0.1); }
+        .add-btn span.icon { font-size: 18px; }
+
+        .preview-area { flex: 1; background: radial-gradient(circle at center, #1a1a24 0%, #0b0c10 100%); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .preview-controls { position: absolute; top: 24px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: var(--ui-panel); padding: 8px; border-radius: 8px; border: 1px solid var(--ui-border); z-index: 10; }
+        .zoom-btn { background: transparent; border: none; color: white; width: 32px; height: 32px; cursor: pointer; }
+        
+        .preview-canvas-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; }
+        .preview-wrapper { box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8); transform-origin: center center; position: relative; }
+
+        .render-board { position: relative; overflow: hidden; background: var(--bg-main); color: var(--text-light); }
+        .board-1080 { width: 1080px; height: 1080px; }
+        .board-1350 { width: 1080px; height: 1350px; }
+        .board-1920 { width: 1080px; height: 1920px; }
+
+        .bg-layer { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 1; }
+        .overlay-layer { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 2; pointer-events: none; }
+        .decor-layer { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+        .v-lines { position: absolute; inset: 36px; border: 1px solid var(--line-color); }
+        .theme-v2 .v-lines { border: 2px dashed var(--line-color); }
+        .theme-v3 .v-lines { border: 2px solid var(--accent); inset: 24px; box-shadow: inset 0 0 20px rgba(255,45,123,0.2); }
+        
+        #elements-container { position: absolute; inset: 0; z-index: 10; }
+
+        /* DRAGGABLE & RESIZABLE ELEMENTS */
+        .drag-item {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            white-space: pre-wrap;
+            line-height: 1.2;
+            word-break: break-word;
+            padding: 8px;
+            box-sizing: border-box;
+            max-width: 2000px; /* Don't restrict */
+        }
+        
+        /* The inner content of the drag item */
+        .drag-item .content {
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let drag-item catch events */
+        }
+        
+        .drag-item[contenteditable="true"] .content { pointer-events: auto; cursor: text; }
+        
+        .drag-item img, .drag-item svg { width: 100%; height: 100%; display: block; object-fit: contain; }
+        
+        .drag-item:hover { outline: 1px dashed rgba(255,255,255,0.3); outline-offset: 0px; }
+        .drag-item.selected { outline: 2px solid var(--ui-accent); outline-offset: 0px; }
+        .drag-item[contenteditable="true"] { outline: 3px solid #ff2d7b; background: rgba(0,0,0,0.2); }
+        
+        /* RESIZE HANDLES */
+        .resize-handle {
+            position: absolute;
+            background: #fff;
+            border: 2px solid var(--ui-accent);
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: none;
+            z-index: 99;
+        }
+        .drag-item.selected .resize-handle { display: block; }
+        
+        /* Don't show handles when editing text or exporting */
+        .drag-item[contenteditable="true"] .resize-handle,
+        .exporting .resize-handle { display: none !important; }
+        
+        .rh-nw { top: -8px; left: -8px; cursor: nwse-resize; }
+        .rh-ne { top: -8px; right: -8px; cursor: nesw-resize; }
+        .rh-sw { bottom: -8px; left: -8px; cursor: nesw-resize; }
+        .rh-se { bottom: -8px; right: -8px; cursor: nwse-resize; }
+        .rh-e  { top: 50%; right: -8px; transform: translateY(-50%); cursor: ew-resize; border-radius: 4px; height: 24px; width: 12px; }
+        .rh-w  { top: 50%; left: -8px; transform: translateY(-50%); cursor: ew-resize; border-radius: 4px; height: 24px; width: 12px; }
+
+        /* Toolbar */
+        .floating-toolbar { position: absolute; top: 20px; left: 20px; background: var(--ui-panel); backdrop-filter: var(--glass-blur); border: 1px solid var(--ui-border); padding: 8px 12px; border-radius: 8px; display: none; gap: 12px; align-items: center; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .floating-toolbar.active { display: flex; }
+        .tb-group { display: flex; align-items: center; gap: 6px; border-right: 1px solid var(--ui-border); padding-right: 12px; }
+        .tb-group:last-child { border: none; padding: 0; }
+        .tb-btn { background: transparent; border: none; color: white; font-size: 14px; cursor: pointer; padding: 6px; border-radius: 4px; }
+        .tb-btn:hover { background: rgba(255,255,255,0.1); }
+        .tb-input { background: rgba(0,0,0,0.3); border: 1px solid var(--ui-border); color: white; padding: 4px; font-size: 12px; border-radius: 4px; }
+        .tb-color { width: 24px; height: 24px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent; }
+        
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ui-panel); border-left: 4px solid var(--ui-accent); color: white; padding: 16px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 9999; }
+        .toast.show { opacity: 1; transform: translateY(-10px); }
+        
+        .drag-item.shape-rect { display: flex; align-items: center; justify-content: center; }
+        .drag-item.shape-circle { border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .drag-item.shape-line { height: 4px; background: var(--accent); padding: 0; min-height: 4px; }
+    </style>
+</head>
+
+<body class="theme-v2" id="body">
+
+    <!-- FLOATING TOOLBAR -->
+    <div class="floating-toolbar" id="toolbar">
+        <div class="tb-group" id="tb-font-group">
+            <select class="tb-input" id="tb-font" onchange="applyTool()">
+                <option value="">Fonte Padrão</option>
+                <option value="'Fraunces', serif">Fraunces</option>
+                <option value="'Cormorant Garamond', serif">Cormorant</option>
+                <option value="'Space Grotesk', sans-serif">Space</option>
+                <option value="'Bebas Neue', sans-serif">Bebas</option>
+                <option value="'Inter', sans-serif">Inter</option>
+                <option value="'Jost', sans-serif">Jost</option>
+                <option value="'Caveat', cursive">Caveat</option>
+                <option value="'Pacifico', cursive">Pacifico</option>
+            </select>
+        </div>
+        <div class="tb-group">
+            <input type="color" class="tb-color" id="tb-color" title="Cor (Texto/Fundo/SVG)" oninput="applyTool()">
+        </div>
+        <div class="tb-group" id="tb-align-group">
+            <button class="tb-btn" onclick="applyAlign('left')" title="Esquerda">⇤</button>
+            <button class="tb-btn" onclick="applyAlign('center')" title="Centro">⇹</button>
+            <button class="tb-btn" onclick="applyAlign('right')" title="Direita">⇥</button>
+        </div>
+        <div class="tb-group">
+            <button class="tb-btn" onclick="changeZIndex(1)" title="Trazer para Frente">⇧</button>
+            <button class="tb-btn" onclick="changeZIndex(-1)" title="Enviar para Trás">⇩</button>
+            <button class="tb-btn" onclick="duplicateSelected()" title="Duplicar">⧉</button>
+        </div>
+        <div class="tb-group">
+            <button class="tb-btn" onclick="deleteSelected()" title="Apagar" style="color:#ff4b4b;">🗑️</button>
+            <button class="tb-btn" onclick="closeToolbar()" title="Fechar">❌</button>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>Gerador Elementor</h1>
+            <p>100% Livre (Com Resize Visual)</p>
+        </div>
+
+        <div class="sidebar-content">
+            
+            <!-- TEMPLATES -->
+            <div class="section" style="border-color: var(--ui-accent); box-shadow: 0 0 15px rgba(102,252,241,0.1);">
+                <div class="section-header" onclick="toggleSection(this)" style="background: rgba(102,252,241,0.1); color: var(--ui-accent);">
+                    <span>🪄 Templates Editáveis</span><span>▼</span>
+                </div>
+                <div class="section-body">
+                    <div class="tpl-grid">
+                        <div class="tpl-btn" onclick="loadTemplate('classic')"><span class="icon">🖼️</span><span class="text">Clássico</span></div>
+                        <div class="tpl-btn" onclick="loadTemplate('review')"><span class="icon">💬</span><span class="text">Depoimento</span></div>
+                        <div class="tpl-btn" onclick="loadTemplate('promo')"><span class="icon">⚡</span><span class="text">Flash Day</span></div>
+                        <div class="tpl-btn" onclick="loadTemplate('ask')"><span class="icon">❔</span><span class="text">Caixinha</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)"><span>📐 Layout & Canvas</span><span>▼</span></div>
+                <div class="section-body" style="display:none;">
+                    <div class="theme-grid">
+                        <div class="theme-btn" id="btn-v1" onclick="setTheme('v1')">Premium Dark</div>
+                        <div class="theme-btn active" id="btn-v2" onclick="setTheme('v2')">Kraft Flash</div>
+                        <div class="theme-btn" id="btn-v3" onclick="setTheme('v3')">Neon Ink</div>
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Tamanho do Post</label>
+                        <select id="input-tipo" onchange="setupCanvas()">
+                            <option value="feed">Post Feed (1080×1080)</option>
+                            <option value="c-capa">Carrossel (1080×1350)</option>
+                            <option value="story">Story / Reels (1080×1920)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Substituir Background</label>
+                        <input type="file" id="input-bg" accept="image/*" onchange="handleBgImage(event)">
+                    </div>
+                    <div class="form-group">
+                        <label>Escurecer Fundo</label>
+                        <input type="range" id="input-overlay" min="0" max="9" value="4" oninput="updateOverlay()">
+                    </div>
+                    <div class="form-group">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="chk-lines" checked onchange="toggleDecorations()"> Exibir grids/linhas
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TEXTOS -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)"><span>📝 Adicionar Textos</span><span>▼</span></div>
+                <div class="section-body">
+                    <div class="add-grid">
+                        <div class="add-btn" onclick="addTextElement('title')"><span class="icon">T</span><span>Título</span></div>
+                        <div class="add-btn" onclick="addTextElement('subtitle')"><span class="icon">t</span><span>Subtítulo</span></div>
+                        <div class="add-btn" onclick="addTextElement('body')"><span class="icon">≡</span><span>Corpo Texto</span></div>
+                        <div class="add-btn" onclick="addTextElement('hand')"><span class="icon">✍️</span><span>Assinatura</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMAS GEOMÉTRICAS -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)"><span>🔲 Formas Base</span><span>▼</span></div>
+                <div class="section-body">
+                    <div class="add-grid col-3">
+                        <div class="add-btn" onclick="addShape('rect')"><span class="icon">▭</span><span>Caixa</span></div>
+                        <div class="add-btn" onclick="addShape('circle')"><span class="icon">〇</span><span>Círculo</span></div>
+                        <div class="add-btn" onclick="addShape('line')"><span class="icon">━</span><span>Linha</span></div>
+                        <div class="add-btn" onclick="addShape('rect-stroke')"><span class="icon">▱</span><span>Borda</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STICKERS & SVGS -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)"><span>⭐ Stickers e Elementos</span><span>▼</span></div>
+                <div class="section-body">
+                    <div class="add-grid col-3">
+                        <div class="add-btn" onclick="addSticker('quote')"><span class="icon">❝</span><span>Aspas</span></div>
+                        <div class="add-btn" onclick="addSticker('burst')"><span class="icon">💥</span><span>Selo Promo</span></div>
+                        <div class="add-btn" onclick="addSticker('sparkle')"><span class="icon">✨</span><span>Sparkles</span></div>
+                        <div class="add-btn" onclick="addSticker('stars')"><span class="icon">★</span><span>5 Estrelas</span></div>
+                        <div class="add-btn" onclick="addWidget('ig-box')"><span class="icon">❔</span><span>Box Insta</span></div>
+                        <div class="add-btn" onclick="addWidget('ig-poll')"><span class="icon">📊</span><span>Enquete</span></div>
+                    </div>
+                    <div class="add-btn" style="margin-top:8px; grid-column: span 3; border: 1px solid var(--ui-accent);" onclick="document.getElementById('input-add-img').click()">
+                        <span class="icon">🖼️</span><span>Upload Imagem Livre</span>
+                        <input type="file" id="input-add-img" accept="image/*" style="display:none;" onchange="addImageElement(event)">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" onclick="clearCanvas()">🗑️ Limpar</button>
+            <button class="btn btn-primary" onclick="downloadImage()">💾 Baixar PNG</button>
+        </div>
+    </aside>
+
+    <main class="preview-area" id="drop-zone">
+        <div class="preview-controls">
+            <button class="zoom-btn" onclick="setZoom(0.5)">-</button>
+            <button class="zoom-btn" onclick="setZoom('fit')">⤢</button>
+            <button class="zoom-btn" onclick="setZoom(1)">+</button>
+        </div>
+        
+        <div class="preview-canvas-wrapper" id="canvas-wrapper">
+            <div class="preview-wrapper" id="preview-wrapper" style="transform: scale(0.6);">
+                <div id="capture-area"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentTheme = 'v2';
+        let bgImgBase64 = '';
+        let currentZoom = 'fit';
+        
+        // DRAG & RESIZE STATE
+        let selectedElement = null;
+        let isDragging = false;
+        let isResizing = false;
+        let resizeDir = '';
+        
+        let startX = 0, startY = 0;
+        let initialLeft = 0, initialTop = 0;
+        let initialWidth = 0, initialHeight = 0;
+        let initialFontSize = 0;
+        
+        let highestZ = 10;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCanvas();
+            window.addEventListener('resize', () => { if (currentZoom === 'fit') fitToScreen(); });
+            setupDragAndDropFile();
+            setupGlobalMouseEvents();
+        });
+
+        // ------------------ CANVAS SETUP ------------------
+        function setupCanvas() {
+            closeToolbar();
+            const tipo = document.getElementById('input-tipo').value;
+            const captureArea = document.getElementById('capture-area');
+            const bgStyle = bgImgBase64 ? `background-image: url('${bgImgBase64}');` : '';
+            
+            let boardClass = 'board-1080';
+            if(tipo === 'c-capa') boardClass = 'board-1350';
+            if(tipo === 'story') boardClass = 'board-1920';
+            
+            const oldElementsContainer = document.getElementById('elements-container');
+            let existingElements = oldElementsContainer ? oldElementsContainer.innerHTML : `
+                <div class="drag-item" data-type="text" style="font-family: var(--font-heading); font-size: 64px; color: var(--text-light); left: 100px; top: 100px; z-index: 10;">
+                    <div class="content">Comece escolhendo um <br><span style="color:var(--accent);">Template</span> na aba ao lado!</div>
+                </div>
+            `;
+
+            captureArea.innerHTML = `
+                <div class="render-board ${boardClass}" id="post-node">
+                    <div class="bg-layer" style="${bgStyle} background-color: var(--bg-main);"></div>
+                    <div class="overlay-layer"></div>
+                    <div class="decor-layer"><div class="v-lines decor-element"></div></div>
+                    <div id="elements-container">${existingElements}</div>
+                </div>`;
+            
+            updateOverlay();
+            toggleDecorations();
+            bindDraggables();
+            setTimeout(fitToScreen, 100);
+        }
+        
+        function clearCanvas() {
+            document.getElementById('elements-container').innerHTML = '';
+            closeToolbar();
+            highestZ = 10;
+        }
+
+        // ------------------ TEMPLATE ENGINE ------------------
+        function loadTemplate(tplName) {
+            if(!confirm("Carregar um template apagará tudo que está na tela agora. Continuar?")) return;
+            
+            clearCanvas();
+            const container = document.getElementById('elements-container');
+            const cw = document.getElementById('post-node').offsetWidth;
+            const ch = document.getElementById('post-node').offsetHeight;
+
+            const spawnAt = (html, type, x, y, customStyles) => {
+                const el = document.createElement('div');
+                el.className = 'drag-item';
+                el.dataset.type = type;
+                highestZ++;
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.zIndex = highestZ;
+                if(customStyles) el.style.cssText += customStyles;
+                
+                // Wrap content so drag item handles sizing properly
+                el.innerHTML = `<div class="content">${html}</div>`;
+                container.appendChild(el);
+            };
+
+            if (tplName === 'classic') {
+                spawnAt('PORTFÓLIO', 'text', cw/2 - 300, 150, 'font-family: var(--font-body); font-size: 24px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; width: 600px; text-align: center;');
+                spawnAt('Arte botânica exclusiva', 'text', cw/2 - 400, 200, 'font-family: var(--font-heading); font-size: 80px; color: var(--text-light); font-weight: bold; width: 800px; text-align: center;');
+                spawnAt('Agenda Aberta SP', 'text', cw/2 - 300, ch - 250, 'font-family: var(--font-body); font-size: 28px; color: var(--text-light); width: 600px; text-align: center;');
+                spawnAt('Olivia', 'text', cw/2 - 200, ch - 180, 'font-family: var(--font-hand); font-size: 60px; color: var(--accent-soft); width: 400px; text-align: center;');
+            } 
+            else if (tplName === 'review') {
+                spawnAt('★★★★★', 'sticker', cw/2 - 200, 150, 'width: 400px; font-size: 60px; color: var(--accent); text-align: center; letter-spacing: 10px;');
+                spawnAt('<div style="font-family: var(--font-heading); font-size: 250px; line-height: 0.5; font-weight: bold; font-style: italic;">"</div>', 'sticker', 80, 220, 'width: 150px; height: 150px; color: var(--accent); text-align: center; opacity:0.3;');
+                spawnAt('O traço da Olivia é o mais fino que já vi. Muito cuidadosa, o estúdio é incrível. Recomendo de olhos fechados!', 'text', cw/2 - 400, 300, 'font-family: var(--font-heading); font-size: 48px; color: var(--text-light); width: 800px; text-align: center; line-height:1.4;');
+                spawnAt('— Maria A.', 'text', cw/2 - 300, ch - 250, 'font-family: var(--font-body); font-size: 32px; color: var(--accent-soft); width: 600px; text-align: center;');
+            }
+            else if (tplName === 'promo') {
+                spawnAt('<svg viewBox="0 0 200 200" style="width:100%; height:100%; fill:currentColor;"><path d="M100 0 l15 35 35-15 0 38 35 15 -25 27 25 27 -35 15 0 38 -35-15 -15 35 -15-35 -35 15 0-38 -35-15 25-27 -25-27 35-15 0-38 35 15z"/></svg>', 'sticker', 100, 100, 'width: 250px; height: 250px; color: var(--accent);');
+                spawnAt('<svg viewBox="0 0 100 100" style="width:100%; height:100%; fill:currentColor;"><path d="M50 0 C50 40 60 50 100 50 C60 50 50 60 50 100 C50 60 40 50 0 50 C40 50 50 40 50 0 Z"/></svg>', 'sticker', cw - 250, 180, 'width: 100px; height: 100px; color: var(--text-light);');
+                spawnAt('FLASH DAY', 'text', cw/2 - 450, 280, 'font-family: var(--font-heading); font-size: 140px; color: var(--text-light); font-weight: bold; width: 900px; text-align: center; text-transform:uppercase; line-height: 1;');
+                spawnAt('TATTOOS A PARTIR DE R$150', 'text', cw/2 - 400, 420, 'font-family: var(--font-body); font-size: 38px; color: var(--accent-soft); width: 800px; text-align: center; letter-spacing: 2px;');
+                
+                spawnAt('', 'shape', cw/2 - 250, ch - 220, 'width: 500px; height: 100px; background: var(--text-light); border-radius: 12px;');
+                spawnAt('AGENDAR HORÁRIO', 'text', cw/2 - 250, ch - 195, 'font-family: var(--font-body); font-size: 28px; font-weight: bold; color: var(--bg-main); width: 500px; text-align: center; letter-spacing: 1px;');
+            }
+            else if (tplName === 'ask') {
+                spawnAt('MANDA SUA DÚVIDA!', 'text', cw/2 - 450, 250, 'font-family: var(--font-heading); font-size: 90px; color: var(--text-light); font-weight: bold; width: 900px; text-align: center; text-transform:uppercase; line-height: 1;');
+                const widgetHTML = `
+                    <div style="font-family: var(--font-body); color: var(--accent); text-transform: uppercase; font-size: 24px; letter-spacing: 0.1em; margin-bottom: 24px;">Caixinha de Perguntas</div>
+                    <div style="font-family: var(--font-heading); color: #999; font-size: 42px;">Faça sua pergunta...</div>
+                `;
+                spawnAt(widgetHTML, 'widget', cw/2 - 400, 450, 'width: 800px; background: var(--paper-main); border-radius: 16px; padding: 60px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);');
+                spawnAt('<svg viewBox="0 0 100 100" style="width:100%; height:100%; fill:currentColor;"><path d="M50 0 C50 40 60 50 100 50 C60 50 50 60 50 100 C50 60 40 50 0 50 C40 50 50 40 50 0 Z"/></svg>', 'sticker', 180, 700, 'width: 80px; height: 80px; color: var(--accent);');
+            }
+
+            bindDraggables();
+            showToast("✨ Template carregado com sucesso!");
+        }
+
+        // ------------------ ADD SINGLE ELEMENTS ------------------
+        function spawnElement(html, type, width, height, customStyles = '') {
+            const container = document.getElementById('elements-container');
+            const el = document.createElement('div');
+            el.className = 'drag-item';
+            el.dataset.type = type;
+            highestZ++;
+            
+            const board = document.getElementById('post-node');
+            const cx = (board.offsetWidth / 2) - (width / 2);
+            const cy = (board.offsetHeight / 2) - (height / 2);
+            
+            el.style.left = cx + 'px';
+            el.style.top = cy + 'px';
+            el.style.zIndex = highestZ;
+            if(customStyles) el.style.cssText += customStyles;
+            
+            el.innerHTML = `<div class="content">${html}</div>`;
+            container.appendChild(el);
+            bindDraggables();
+            return el;
+        }
+
+        function addTextElement(type) {
+            let style = '', text = '';
+            if(type === 'title') { style = 'font-family: var(--font-heading); font-size: 80px; color: var(--text-light); font-weight: bold; width: 800px; text-align: center;'; text = 'TÍTULO PRINCIPAL'; }
+            else if(type === 'subtitle') { style = 'font-family: var(--font-body); font-size: 24px; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; width: 600px; text-align: center;'; text = 'SOBRETÍTULO'; }
+            else if(type === 'body') { style = 'font-family: var(--font-body); font-size: 28px; color: var(--text-light); width: 600px; text-align: center;'; text = 'Este é um corpo de texto. Dê dois cliques para editar.'; }
+            else if(type === 'hand') { style = 'font-family: var(--font-hand); font-size: 60px; color: var(--accent-soft); width: 400px; text-align: center;'; text = 'Assinatura Olivia'; }
+
+            spawnElement(text, 'text', 400, 100, style);
+        }
+
+        function addImageElement(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                spawnElement(`<img src="${ev.target.result}">`, 'image', 400, 400, 'width: 400px; height: 400px;');
+                e.target.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addShape(type) {
+            let style = '';
+            if(type === 'rect') style = 'width: 400px; height: 300px; background: var(--bg-alt);';
+            else if(type === 'circle') style = 'width: 300px; height: 300px; background: var(--accent); border-radius: 50%;';
+            else if(type === 'line') style = 'width: 600px; height: 6px; background: var(--accent); min-height: 4px;';
+            else if(type === 'rect-stroke') style = 'width: 400px; height: 300px; background: transparent; border: 4px solid var(--accent);';
+            
+            spawnElement('', 'shape', 400, 300, style);
+        }
+
+        function addSticker(type) {
+            let html = '', style = 'width: 200px; height: 200px; color: var(--accent);';
+            if(type === 'quote') { html = `<div style="font-family: var(--font-heading); font-size: 250px; line-height: 0.5; font-weight: bold; font-style: italic;">"</div>`; style = 'width: 150px; height: 150px; color: var(--accent); text-align: center;'; } 
+            else if(type === 'stars') { html = `★★★★★`; style = 'width: 400px; font-size: 60px; color: var(--accent); text-align: center; letter-spacing: 10px;'; }
+            else if(type === 'burst') { html = `<svg viewBox="0 0 200 200" style="width:100%; height:100%; fill:currentColor;"><path d="M100 0 l15 35 35-15 0 38 35 15 -25 27 25 27 -35 15 0 38 -35-15 -15 35 -15-35 -35 15 0-38 -35-15 25-27 -25-27 35-15 0-38 35 15z"/></svg>`; }
+            else if(type === 'sparkle') { html = `<svg viewBox="0 0 100 100" style="width:100%; height:100%; fill:currentColor;"><path d="M50 0 C50 40 60 50 100 50 C60 50 50 60 50 100 C50 60 40 50 0 50 C40 50 50 40 50 0 Z"/></svg>`; }
+            spawnElement(html, 'sticker', 200, 200, style);
+        }
+
+        function addWidget(type) {
+            let html = '', style = '';
+            if(type === 'ig-box') {
+                style = 'width: 900px; background: var(--paper-main); border-radius: 16px; padding: 60px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);';
+                html = `<div style="font-family: var(--font-body); color: var(--accent); text-transform: uppercase; font-size: 24px; letter-spacing: 0.1em; margin-bottom: 24px;">Caixinha de Perguntas</div><div style="font-family: var(--font-heading); color: #999; font-size: 42px;">Faça sua pergunta...</div>`;
+            } else if(type === 'ig-poll') {
+                style = 'width: 900px; display: flex; flex-direction: column; gap: 24px;';
+                html = `<div style="border: 2px solid var(--accent); border-radius: 52px; padding: 30px 0; font-size: 32px; color: var(--text-light); font-family: var(--font-body); text-align: center; background: rgba(0,0,0,0.4);">Opção A</div><div style="border: 2px solid var(--accent); border-radius: 52px; padding: 30px 0; font-size: 32px; color: var(--text-light); font-family: var(--font-body); text-align: center; background: rgba(0,0,0,0.4);">Opção B</div>`;
+            }
+            spawnElement(html, 'widget', 900, 200, style);
+        }
+
+        // ------------------ GLOBAL MOUSE (DRAG & RESIZE) ------------------
+        function setupGlobalMouseEvents() {
+            document.addEventListener('mousemove', (e) => {
+                const wrapperScale = parseFloat(document.getElementById('preview-wrapper').style.transform.replace('scale(', '')) || 1;
+                
+                if (isResizing && selectedElement) {
+                    const dx = (e.clientX - startX) / wrapperScale;
+                    const dy = (e.clientY - startY) / wrapperScale;
+                    
+                    let newWidth = initialWidth;
+                    let newHeight = initialHeight;
+                    let newLeft = initialLeft;
+                    let newTop = initialTop;
+                    
+                    const type = selectedElement.dataset.type;
+                    const ratio = initialHeight / initialWidth;
+                    
+                    // Handle Directions
+                    if (resizeDir.includes('e')) newWidth = initialWidth + dx;
+                    if (resizeDir.includes('w')) { newWidth = initialWidth - dx; newLeft = initialLeft + dx; }
+                    
+                    // Constrain width
+                    if (newWidth < 20) newWidth = 20;
+
+                    if (resizeDir.includes('s')) newHeight = initialHeight + dy;
+                    if (resizeDir.includes('n')) { newHeight = initialHeight - dy; newTop = initialTop + dy; }
+                    
+                    // Proportional Scaling for corners
+                    if (resizeDir.length === 2) {
+                        // Corners: lock aspect ratio based on width change
+                        newHeight = newWidth * ratio;
+                        
+                        // If type is text/sticker/widget, scale font size
+                        if (type === 'text' || type === 'sticker' || type === 'widget') {
+                            const scaleRatio = newWidth / initialWidth;
+                            selectedElement.style.fontSize = (initialFontSize * scaleRatio) + 'px';
+                        }
+                    }
+
+                    selectedElement.style.width = newWidth + 'px';
+                    if (type === 'image' || type === 'shape') {
+                        // Let images height follow CSS object-fit, unless it's a shape circle
+                        if(selectedElement.style.borderRadius === '50%') selectedElement.style.height = newWidth + 'px';
+                        else if (resizeDir.length === 2 || type === 'image') selectedElement.style.height = newHeight + 'px';
+                    }
+                    
+                    // Adjust positions if dragging North or West handles
+                    if (resizeDir.includes('w')) selectedElement.style.left = newLeft + 'px';
+                    if (resizeDir.includes('n')) selectedElement.style.top = newTop + 'px';
+
+                    positionToolbar(selectedElement);
+                    return; // exit early if resizing
+                }
+                
+                // Dragging
+                if (isDragging && selectedElement) {
+                    if (selectedElement.getAttribute('contenteditable') === 'true') return;
+                    
+                    const dx = (e.clientX - startX) / wrapperScale;
+                    const dy = (e.clientY - startY) / wrapperScale;
+                    
+                    selectedElement.style.left = (initialLeft + dx) + 'px';
+                    selectedElement.style.top = (initialTop + dy) + 'px';
+                    
+                    positionToolbar(selectedElement);
+                }
+            });
+
+            document.addEventListener('mouseup', () => { 
+                isDragging = false; 
+                isResizing = false;
+            });
+            
+            // Click outside to deselect
+            document.getElementById('canvas-wrapper').addEventListener('mousedown', (e) => {
+                if (selectedElement && selectedElement.getAttribute('contenteditable') === 'true' && !selectedElement.contains(e.target)) {
+                    selectedElement.removeAttribute('contenteditable');
+                }
+                
+                // If clicking directly on the canvas background, deselect
+                if (e.target.id === 'canvas-wrapper' || e.target.id === 'capture-area' || e.target.classList.contains('overlay-layer')) {
+                    document.querySelectorAll('.drag-item').forEach(el => { 
+                        el.classList.remove('selected'); 
+                        el.removeAttribute('contenteditable'); 
+                    });
+                    selectedElement = null;
+                    closeToolbar();
+                }
+            });
+        }
+
+        // Add handles to DOM for the element
+        function injectHandles(el) {
+            if (el.querySelector('.resize-handle')) return; // already injected
+            
+            const handles = ['nw', 'ne', 'sw', 'se', 'e', 'w'];
+            handles.forEach(dir => {
+                // Don't inject e/w sides for images/stickers to prevent aspect ratio smash
+                const type = el.dataset.type;
+                if ((type === 'image' || type === 'sticker') && (dir === 'e' || dir === 'w')) return;
+                
+                const handle = document.createElement('div');
+                handle.className = `resize-handle rh-${dir}`;
+                handle.dataset.dir = dir;
+                
+                // Bind Resize event
+                handle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    isResizing = true;
+                    resizeDir = dir;
+                    selectedElement = el;
+                    
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const compStyle = window.getComputedStyle(el);
+                    initialWidth = parseFloat(compStyle.width);
+                    initialHeight = parseFloat(compStyle.height);
+                    initialLeft = parseFloat(compStyle.left) || 0;
+                    initialTop = parseFloat(compStyle.top) || 0;
+                    initialFontSize = parseFloat(compStyle.fontSize) || 16;
+                });
+                
+                el.appendChild(handle);
+            });
+        }
+
+        function bindDraggables() {
+            const items = document.querySelectorAll('.drag-item');
+            items.forEach(item => {
+                if(item.dataset.bound) return;
+                item.dataset.bound = 'true';
+                
+                // DRAG INITIATION
+                item.addEventListener('mousedown', (e) => {
+                    if(e.button !== 0) return; 
+                    if(e.target.classList.contains('resize-handle')) return; // Let handle manage it
+                    if(item.getAttribute('contenteditable') === 'true') return;
+                    
+                    isDragging = true;
+                    document.querySelectorAll('.drag-item').forEach(el => { 
+                        el.classList.remove('selected'); 
+                        if(el !== item) el.removeAttribute('contenteditable'); 
+                    });
+                    
+                    selectedElement = item;
+                    item.classList.add('selected');
+                    
+                    // Inject Handles on first click
+                    injectHandles(item);
+                    
+                    openToolbar(item);
+                    
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialLeft = parseFloat(item.style.left) || 0;
+                    initialTop = parseFloat(item.style.top) || 0;
+                    e.stopPropagation();
+                });
+                
+                item.addEventListener('dblclick', (e) => {
+                    if(item.dataset.type === 'text' || item.dataset.type === 'widget' || item.dataset.type === 'sticker') {
+                        item.setAttribute('contenteditable', 'true');
+                        item.querySelector('.content').focus();
+                        closeToolbar(); 
+                    }
+                    e.stopPropagation();
+                });
+            });
+        }
+
+        // ------------------ TOOLBAR ACTIONS ------------------
+        function openToolbar(el) {
+            const tb = document.getElementById('toolbar');
+            tb.classList.add('active');
+            
+            const type = el.dataset.type;
+            const compStyle = window.getComputedStyle(el);
+            
+            const isText = type === 'text' || type === 'widget' || type === 'sticker';
+            document.getElementById('tb-font-group').style.display = isText ? 'flex' : 'none';
+            document.getElementById('tb-align-group').style.display = isText ? 'flex' : 'none';
+            
+            let color = compStyle.color;
+            if(type === 'shape' && (compStyle.backgroundColor !== 'rgba(0, 0, 0, 0)' && compStyle.backgroundColor !== 'transparent')) {
+                color = compStyle.backgroundColor;
+                el.dataset.colorTarget = 'bg';
+            } else if (type === 'shape' && parseInt(compStyle.borderWidth) > 0) {
+                color = compStyle.borderColor;
+                el.dataset.colorTarget = 'border';
+            } else {
+                el.dataset.colorTarget = 'text'; 
+            }
+            
+            const rgb = color.match(/\d+/g);
+            if(rgb && rgb.length >= 3) {
+                const hex = "#" + ((1 << 24) + (parseInt(rgb[0]) << 16) + (parseInt(rgb[1]) << 8) + parseInt(rgb[2])).toString(16).slice(1);
+                document.getElementById('tb-color').value = hex;
+            }
+            
+            positionToolbar(el);
+        }
+
+        function positionToolbar(el) {
+            const tb = document.getElementById('toolbar');
+            const rect = el.getBoundingClientRect();
+            tb.style.top = Math.max(10, rect.top - 60) + 'px';
+            tb.style.left = Math.max(10, rect.left) + 'px';
+        }
+
+        function closeToolbar() {
+            document.getElementById('toolbar').classList.remove('active');
+            if(selectedElement) { selectedElement.classList.remove('selected'); selectedElement.removeAttribute('contenteditable'); }
+            selectedElement = null;
+        }
+
+        function applyTool() {
+            if(!selectedElement) return;
+            const type = selectedElement.dataset.type;
+            const font = document.getElementById('tb-font').value;
+            const color = document.getElementById('tb-color').value;
+            
+            if(font && type === 'text') selectedElement.style.fontFamily = font;
+            
+            if(color) {
+                if(selectedElement.dataset.colorTarget === 'bg') selectedElement.style.background = color;
+                else if(selectedElement.dataset.colorTarget === 'border') selectedElement.style.borderColor = color;
+                else selectedElement.style.color = color;
+            }
+        }
+
+        function applyAlign(alignment) {
+            if(selectedElement) selectedElement.style.textAlign = alignment;
+        }
+        
+        function changeZIndex(action) {
+            if(!selectedElement) return;
+            if (action === 1) {
+                highestZ++;
+                selectedElement.style.zIndex = highestZ;
+                showToast("Trazido para frente");
+            } 
+            else if (action === -1) {
+                let currentZ = parseInt(selectedElement.style.zIndex) || 10;
+                if (currentZ > 4) {
+                    selectedElement.style.zIndex = currentZ - 1;
+                    showToast("Enviado para trás");
+                } else {
+                    showToast("Já está no fundo!");
+                }
+            }
+        }
+        
+        function duplicateSelected() {
+            if(!selectedElement) return;
+            const clone = selectedElement.cloneNode(true);
+            const curL = parseFloat(selectedElement.style.left) || 0;
+            const curT = parseFloat(selectedElement.style.top) || 0;
+            clone.style.left = (curL + 40) + 'px';
+            clone.style.top = (curT + 40) + 'px';
+            
+            highestZ++;
+            clone.style.zIndex = highestZ;
+            clone.dataset.bound = ''; 
+            clone.classList.remove('selected');
+            
+            document.getElementById('elements-container').appendChild(clone);
+            bindDraggables();
+        }
+
+        function deleteSelected() {
+            if(!selectedElement) return;
+            selectedElement.remove();
+            closeToolbar();
+        }
+
+        // ------------------ UI UTILS ------------------
+        function toggleSection(header) { const body = header.nextElementSibling; body.style.display = body.style.display === 'none' ? 'flex' : 'none'; }
+        function setTheme(theme) { currentTheme = theme; document.getElementById('body').className = `theme-${theme}`; document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-${theme}`).classList.add('active'); }
+
+        function handleBgImage(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { bgImgBase64 = ev.target.result; const bg = document.querySelector('.bg-layer'); if(bg) bg.style.backgroundImage = `url('${bgImgBase64}')`; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateOverlay() { const op = document.getElementById('input-overlay').value / 10; const ol = document.querySelector('.overlay-layer'); if(ol) ol.style.background = `rgba(0,0,0,${op})`; }
+        function toggleDecorations() { const show = document.getElementById('chk-lines').checked; document.querySelector('.decor-layer').style.display = show ? 'block' : 'none'; }
+        function setZoom(val) { const wrapper = document.getElementById('preview-wrapper'); if (val === 'fit') { currentZoom = 'fit'; fitToScreen(); } else { currentZoom = val; wrapper.style.transform = `scale(${val})`; } }
+
+        function fitToScreen() {
+            const container = document.getElementById('canvas-wrapper');
+            const wrapper = document.getElementById('preview-wrapper');
+            const node = document.getElementById('post-node');
+            if (!node || !container) return;
+            const scale = Math.min((container.clientWidth - 80) / node.offsetWidth, (container.clientHeight - 80) / node.offsetHeight, 1);
+            wrapper.style.transform = `scale(${scale})`;
+            if (currentZoom === 'fit') currentZoom = scale;
+        }
+        
+        function setupDragAndDropFile() {
+            const dz = document.getElementById('drop-zone');
+            dz.addEventListener('dragover', e => e.preventDefault());
+            dz.addEventListener('drop', e => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        spawnElement(`<img src="${ev.target.result}">`, 'image', 400, 400, 'width: 400px; height: 400px;');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.className = 'toast show'; setTimeout(() => toast.classList.remove('show'), 3000); }
+
+        function downloadImage() {
+            showToast('Preparando Renderização...');
+            closeToolbar();
+            const node = document.getElementById('post-node');
+            if(!node) return;
+            
+            // Apply exporting class to hide UI elements during capture
+            document.body.classList.add('exporting');
+            document.querySelectorAll('.drag-item').forEach(el => { el.classList.remove('selected'); el.removeAttribute('contenteditable'); });
+            
+            const wrapper = document.getElementById('preview-wrapper');
+            const originalTransform = wrapper.style.transform;
+            wrapper.style.transform = 'none';
+
+            htmlToImage.toPng(node, { quality: 1.0, pixelRatio: 1.5 })
+                .then(function (dataUrl) {
+                    const link = document.createElement('a'); link.download = `olivia_builder_${Date.now()}.png`; link.href = dataUrl; link.click();
+                    showToast('✅ PNG gerado com sucesso!'); 
+                    wrapper.style.transform = originalTransform;
+                    document.body.classList.remove('exporting');
+                })
+                .catch(function (err) { 
+                    console.error(err); 
+                    showToast('❌ Erro ao exportar'); 
+                    wrapper.style.transform = originalTransform; 
+                    document.body.classList.remove('exporting');
+                });
+        }
+    </script>
+</body>
+</html>

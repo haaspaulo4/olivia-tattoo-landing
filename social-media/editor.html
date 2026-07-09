@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Gerador Ultimate - Olivia Tattoo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Jost:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+
+<style>
+  :root {
+    /* DEFAULT UI COLORS */
+    --ui-bg: #100c0a;
+    --ui-panel: #181512;
+    --ui-border: #2a2520;
+    --ui-text: #ded2b6;
+    --ui-accent: #9C3B2C;
+    --ui-input: #0e0b09;
+    --ui-btn: #5C6B4E;
+  }
+  
+  /* THEME V1: PREMIUM DARK */
+  .theme-v1 {
+    --bg-main: #1B1613;
+    --bg-alt: #241D18;
+    --paper-main: #F3EDE4;
+    --paper-alt: #EAE1D2;
+    --accent: #C9A671;
+    --accent-soft: #E4C99A;
+    --text-light: #EDE6DA;
+    --text-dark: #2B2420;
+    --rose: #B98072;
+    --line-color: rgba(201,166,113,0.35);
+    
+    --font-heading: 'Cormorant Garamond', serif;
+    --font-body: 'Jost', sans-serif;
+    --font-hand: 'Caveat', cursive;
+  }
+  
+  /* THEME V2: KRAFT FLASH */
+  .theme-v2 {
+    --bg-main: #EAE0C8;
+    --bg-alt: #E1D4B4;
+    --paper-main: #181310;
+    --paper-alt: #2B241D;
+    --accent: #9C3B2C;
+    --accent-soft: #5C6B4E;
+    --text-light: #181310; 
+    --text-dark: #EAE0C8;
+    --line-color: rgba(24,19,16,0.55);
+    
+    --font-heading: 'Fraunces', serif;
+    --font-body: 'IBM Plex Mono', monospace;
+    --font-hand: 'Caveat', cursive;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--ui-bg);font-family:'Jost',sans-serif;color:var(--ui-text);}
+  
+  .app-container { display: flex; height: 100vh; overflow: hidden; }
+
+  /* SIDEBAR UI */
+  .sidebar { width: 450px; background: var(--ui-panel); border-right: 1px solid var(--ui-border); padding: 30px; overflow-y: auto; }
+  .sidebar h1 { font-family: 'Fraunces', serif; font-size: 24px; margin: 0 0 5px; color: #f1e8d3; }
+  .sidebar p.desc { font-size: 13px; color: #8a7e64; margin: 0 0 24px; }
+
+  .theme-toggle { display: flex; gap: 10px; margin-bottom: 24px; }
+  .theme-btn { flex: 1; padding: 12px; background: var(--ui-input); border: 1px solid var(--ui-border); color: #fff; border-radius: 4px; cursor: pointer; font-family: inherit; transition: 0.2s; }
+  .theme-btn.active { border-color: var(--ui-accent); background: #2a1614; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 12px; color: #c9bc94; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;}
+  .form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--ui-input); border: 1px solid var(--ui-border); color: #f1e8d3; padding: 12px; border-radius: 4px; font-family: inherit; font-size: 14px; }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--ui-accent); }
+
+  .btn { width: 100%; padding: 16px; background: var(--ui-btn); color: #fff; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+  .btn:hover { background: #4a573e; }
+  
+  /* PREVIEW AREA */
+  .preview-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; overflow: auto; padding: 40px; }
+  .preview-wrapper { box-shadow: 0 20px 50px rgba(0,0,0,0.8); transform-origin: top center; zoom: 0.45; }
+
+  /* ====================== RENDER ENGINE (DYNAMIC CSS) ====================== */
+  .render-board { position: relative; overflow: hidden; background: var(--bg-main); color: var(--text-light); }
+  
+  /* Elements V1 & V2 Shared Logic */
+  .v2-only { display: none !important; }
+  .v1-only { display: none !important; }
+  .theme-v2 .v2-only { display: block !important; }
+  .theme-v1 .v1-only { display: block !important; }
+
+  /* V2 specific decorators */
+  .theme-v2 .dots { background-image: radial-gradient(var(--line-color) 1px, transparent 1px); background-size: 16px 16px; }
+  .crosshair{position:absolute;width:26px;height:26px;opacity:.65;}
+  .crosshair::before,.crosshair::after{content:"";position:absolute;background:var(--text-light);}
+  .crosshair::before{left:12px;top:0;width:2px;height:26px;}
+  .crosshair::after{left:0;top:12px;width:26px;height:2px;}
+  .cutline-v2{position:absolute;border:2px dashed var(--line-color);pointer-events:none;inset:34px;}
+
+  /* V1 specific decorators */
+  .cutline-v1{position:absolute;border:1px solid var(--line-color);pointer-events:none;inset:36px;}
+
+  /* Common typographies applied via vars */
+  .eyebrow { font-family: var(--font-body); font-size: 20px; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); }
+  .title { font-family: var(--font-heading); font-style: italic; font-size: 64px; line-height: 1.15; margin: 24px 0 0; color: var(--text-light); font-weight: normal; }
+  .body-txt { font-family: var(--font-body); font-size: 28px; line-height: 1.6; margin-top: 32px; color: var(--text-light); opacity: 0.9; }
+
+  /* ============ CARROSSEL (1080x1350) ============ */
+  .board-1350 { width: 1080px; height: 1350px; display: flex; flex-direction: column; justify-content: center; padding: 120px 96px; }
+  .theme-v1 .board-1350.alt { background: var(--bg-alt); }
+  .pageno { position: absolute; bottom: 70px; right: 96px; font-size: 20px; color: var(--accent); letter-spacing: .1em; font-family: var(--font-body); }
+  .brandmark { position: absolute; bottom: 66px; left: 96px; font-family: var(--font-hand); font-size: 38px; color: var(--accent-soft); }
+  
+  .badge-mito-v1 { display: inline-block; padding: 10px 22px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent-soft); font-size: 18px; letter-spacing: .08em; margin-bottom: 20px; width: fit-content; font-family: var(--font-body); }
+  .badge-mito-v2 { display: inline-flex; align-items: center; gap: 10px; padding: 9px 20px; border: 1.5px solid var(--accent); border-radius: 2px; color: var(--accent); font-size: 18px; letter-spacing: .1em; margin-bottom: 22px; width: fit-content; text-transform: uppercase; font-family: var(--font-body); }
+
+  /* ============ FEED (1080x1080) ============ */
+  .board-1080 { width: 1080px; height: 1080px; display: flex; flex-direction: column; }
+  .feed-imgzone { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
+  .theme-v1 .feed-imgzone { background-color: var(--paper-main); }
+  .theme-v2 .feed-imgzone { background-color: var(--bg-alt); background-image: repeating-linear-gradient(135deg, #d8c9a0 0 2px, #cdbb8f 2px 4px); }
+  
+  .feed-tag { position: absolute; top: 56px; left: 56px; font-size: 20px; letter-spacing: .25em; text-transform: uppercase; color: #000; opacity: .5; font-family: var(--font-body); }
+  
+  .feed-caption { padding: 50px 64px 60px; position: relative; }
+  .theme-v1 .feed-caption { background: var(--bg-main); }
+  .theme-v1 .feed-caption::before { content:""; position:absolute; top:0; left:64px; right:64px; height:1px; background:var(--line-color); }
+  .theme-v2 .feed-caption { background: #181310; color: #eadfc4; }
+  .theme-v2 .feed-caption .title { color: #f2e9d2; }
+  .feed-cta { margin-top: 20px; font-size: 22px; color: var(--accent-soft); font-family: var(--font-body); }
+
+  .stamp-v2 { position: absolute; bottom: 64px; right: 64px; background: var(--bg-alt); width: 180px; height: 180px; border-radius: 50%; border: 3px solid var(--accent); text-align: center; color: var(--accent); font-size: 20px; letter-spacing: .12em; text-transform: uppercase; transform: rotate(-8deg); font-family: var(--font-body); }
+  .stamp-inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+  .stamp-inner span { display: block; line-height: 1; margin: 0; padding: 0; }
+  .stamp-inner .big { font-family: var(--font-heading); font-style: italic; font-size: 44px; letter-spacing: 0; margin-bottom: 2px; }
+
+  /* ============ STORIES (1080x1920) ============ */
+  .board-1920 { width: 1080px; height: 1920px; display: flex; flex-direction: column; align-items: center; background-size: cover; background-position: center; }
+  .s-safe-top { height: 200px; width: 100%; padding: 64px 48px 0; display: flex; justify-content: space-between; align-items: flex-start; z-index: 2; }
+  .ringtag { display: flex; align-items: center; gap: 16px; font-family: var(--font-body); }
+  .theme-v2 .ringtag { background: rgba(0,0,0,0.5); padding: 10px 24px; border-radius: 50px; }
+  .ringtag .dot { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-hand); font-size: 30px; color: var(--accent-soft); background: var(--bg-main); }
+  .ringtag .h { font-size: 22px; color: var(--text-light); letter-spacing: .02em; }
+  .theme-v2 .ringtag .h { color: white; }
+  
+  .s-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 90px; z-index: 2; width: 100%; }
+  .theme-v2 .s-content.has-bg { background: rgba(234, 224, 200, 0.95); margin: 0 40px; border-radius: 8px; width: calc(100% - 80px); flex: none; height: 1300px; margin-top:auto; margin-bottom:auto; }
+
+  .poll-v1 { margin-top: 56px; width: 100%; display: flex; flex-direction: column; gap: 20px; }
+  .poll-v1 .opt { border: 1px solid var(--accent); border-radius: 52px; padding: 26px 0; font-size: 26px; color: var(--text-light); letter-spacing: .02em; font-family: var(--font-body); }
+  .theme-v2 .poll-v1 .opt { border-radius: 4px; border: 1.5px solid var(--text-light); }
+
+  .qbox { margin-top: 56px; width: 100%; text-align: left; background: var(--paper-main); }
+  .theme-v1 .qbox { border: 1px solid var(--accent); border-radius: 32px; padding: 44px 40px; background: transparent; }
+  .theme-v2 .qbox { border: 2px solid var(--text-light); border-radius: 4px; padding: 50px 48px; background: var(--bg-alt); }
+  
+  .qbox .lbl { font-size: 18px; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; font-family: var(--font-body); }
+  .qbox .ph { font-family: var(--font-heading); font-style: italic; font-size: 36px; color: #9c917f; margin-top: 14px; }
+
+  .s-safe-bottom { height: 220px; width: 100%; display: flex; align-items: center; justify-content: center; padding-bottom: 70px; z-index: 2; }
+  .swipe { font-size: 20px; color: var(--accent-soft); letter-spacing: .15em; text-transform: uppercase; font-family: var(--font-body); }
+  .theme-v2 .swipe { background: rgba(0,0,0,0.6); padding: 16px 36px; border-radius: 50px; color: white; }
+
+  /* ============ REELS COVER (1080x1920) ============ */
+  .board-reels { width: 1080px; height: 1920px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; background-size: cover; background-position: center; }
+  .theme-v1 .board-reels { background-color: #181512; }
+  .theme-v2 .board-reels { background-color: #181512; }
+  .board-reels::before { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0) 100%); z-index: 1; }
+  
+  .r-top { position: absolute; top: 80px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: center; z-index: 2; }
+  .r-rec { display: flex; align-items: center; gap: 14px; color: var(--accent-soft); font-size: 22px; letter-spacing: .15em; text-transform: uppercase; font-family: var(--font-body); }
+  .r-rec .d { width: 14px; height: 14px; border-radius: 50%; background: #B98072; }
+  .theme-v2 .r-rec .d { background: #9C3B2C; }
+  
+  .r-quote { padding: 0 90px 200px; z-index: 2; }
+  .r-quote .mark { font-family: var(--font-heading); font-style: italic; font-size: 140px; color: var(--accent); line-height: .4; }
+  .r-quote .title { font-size: 58px; color: #EDE6DA; line-height: 1.35; margin: 10px 0 0; }
+  .r-quote .sig { margin-top: 34px; font-family: var(--font-hand); font-size: 42px; color: var(--accent-soft); }
+  
+  .r-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-70%); width: 130px; height: 130px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: .7; z-index: 2; }
+
+</style>
+</head>
+<body class="theme-v2" id="body">
+
+<div class="app-container">
+  <!-- SIDEBAR CONTROLES -->
+  <div class="sidebar">
+    <h1>Gerador Ultimate</h1>
+    <p class="desc">Dois temas. Todos os modelos. Exportação PNG.</p>
+    
+    <div class="theme-toggle">
+      <button class="theme-btn" id="btn-v1" onclick="setTheme('v1')">Tema V1 (Premium)</button>
+      <button class="theme-btn active" id="btn-v2" onclick="setTheme('v2')">Tema V2 (Flash)</button>
+    </div>
+
+    <div class="form-group">
+      <label>Qual modelo deseja criar?</label>
+      <select id="input-tipo" onchange="updateUI()">
+        <option value="feed">Post Feed Único (1080x1080)</option>
+        <option value="c-capa">Carrossel: Slide 1 Capa (1080x1350)</option>
+        <option value="c-meio">Carrossel: Slide 2-4 Mito/Conteúdo (1080x1350)</option>
+        <option value="c-fim">Carrossel: Slide 5 Final CTA (1080x1350)</option>
+        <option value="s-caixa">Story: Caixinha de Perguntas (1080x1920)</option>
+        <option value="s-enquete">Story: Enquete de Votos (1080x1920)</option>
+        <option value="reels">Capa de Reels: Depoimento/Citação (1080x1920)</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="fg-subtitulo">
+      <label id="lbl-subtitulo">Sobretítulo / Categoria</label>
+      <input type="text" id="input-subtitulo" value="Portfólio · Botânica" onkeyup="updatePreview()">
+    </div>
+
+    <div class="form-group" id="fg-titulo">
+      <label id="lbl-titulo">Título Principal</label>
+      <textarea id="input-titulo" rows="3" onkeyup="updatePreview()">Cada folha conta uma história</textarea>
+    </div>
+
+    <div class="form-group" id="fg-cta">
+      <label id="lbl-cta">Texto Base / CTA / Descrição</label>
+      <textarea id="input-cta" rows="2" onkeyup="updatePreview()">Qual desenho você escolheria? Comenta ↓</textarea>
+    </div>
+
+    <div id="fg-enquete" style="display:none;">
+      <div class="form-group"><label>Opção 1</label><input type="text" id="input-opt1" value="Fineline" onkeyup="updatePreview()"></div>
+      <div class="form-group"><label>Opção 2</label><input type="text" id="input-opt2" value="Geométrico" onkeyup="updatePreview()"></div>
+      <div class="form-group"><label>Opção 3</label><input type="text" id="input-opt3" value="Lettering" onkeyup="updatePreview()"></div>
+      <div class="form-group"><label>Opção 4</label><input type="text" id="input-opt4" value="Botânico" onkeyup="updatePreview()"></div>
+    </div>
+
+    <div class="form-group" id="fg-img">
+      <label>Imagem de Fundo / Foto (Opcional)</label>
+      <input type="file" id="input-img" accept="image/*" onchange="handleImageUpload(event)">
+    </div>
+
+    <button class="btn" onclick="downloadImage()">💾 Baixar Criativo (PNG)</button>
+    <p id="status-msg" style="color:var(--ui-btn); margin-top:10px; font-size:13px; text-align:center;"></p>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-area">
+    <div class="preview-wrapper" id="capture-area">
+      <!-- Injected HTML -->
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentTheme = 'v2';
+  let uploadedImageBase64 = '';
+
+  function setTheme(theme) {
+    currentTheme = theme;
+    document.getElementById('body').className = `theme-${theme}`;
+    document.getElementById('btn-v1').className = theme === 'v1' ? 'theme-btn active' : 'theme-btn';
+    document.getElementById('btn-v2').className = theme === 'v2' ? 'theme-btn active' : 'theme-btn';
+    updatePreview();
+  }
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedImageBase64 = e.target.result;
+        updatePreview();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function updateUI() {
+    const tipo = document.getElementById('input-tipo').value;
+    
+    // Resetar visibilidade
+    document.getElementById('fg-subtitulo').style.display = 'block';
+    document.getElementById('fg-titulo').style.display = 'block';
+    document.getElementById('fg-cta').style.display = 'block';
+    document.getElementById('fg-enquete').style.display = 'none';
+    document.getElementById('fg-img').style.display = 'block';
+
+    const lblSub = document.getElementById('lbl-subtitulo');
+    const lblTit = document.getElementById('lbl-titulo');
+    const lblCta = document.getElementById('lbl-cta');
+
+    if (tipo === 'feed') {
+      lblSub.innerText = 'Tag / Categoria Superior';
+      lblTit.innerText = 'Título';
+      lblCta.innerText = 'Chamada de Ação Inferior';
+    } 
+    else if (tipo.startsWith('c-')) {
+      lblSub.innerText = tipo === 'c-meio' ? 'Tag do Balãozinho (Ex: Mito 01)' : 'Sobretítulo';
+      lblTit.innerText = 'Título Grande';
+      lblCta.innerText = 'Texto Descritivo de Apoio';
+      document.getElementById('fg-img').style.display = 'block'; // Liberando img de fundo pro carrossel
+    }
+    else if (tipo === 's-caixa') {
+      lblSub.innerText = 'Sobretítulo Superior';
+      lblTit.innerText = 'Título Chamativo';
+      lblCta.innerText = 'Descrição abaixo do título';
+    }
+    else if (tipo === 's-enquete') {
+      lblSub.innerText = 'Sobretítulo Superior';
+      lblTit.innerText = 'Pergunta da Enquete';
+      document.getElementById('fg-cta').style.display = 'none';
+      document.getElementById('fg-enquete').style.display = 'block';
+    }
+    else if (tipo === 'reels') {
+      lblSub.innerText = 'Tipo (Ex: Depoimento, Dica)';
+      lblTit.innerText = 'A Frase / Citação';
+      lblCta.innerText = 'Assinatura (Ex: — cliente)';
+    }
+
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const tipo = document.getElementById('input-tipo').value;
+    const subtitulo = document.getElementById('input-subtitulo').value;
+    const titulo = document.getElementById('input-titulo').value.replace(/\n/g, '<br>');
+    const cta = document.getElementById('input-cta').value.replace(/\n/g, '<br>');
+    const captureArea = document.getElementById('capture-area');
+    
+    const o1 = document.getElementById('input-opt1').value;
+    const o2 = document.getElementById('input-opt2').value;
+    const o3 = document.getElementById('input-opt3').value;
+    const o4 = document.getElementById('input-opt4').value;
+    
+    let bgStyle = '';
+    let overlay = '';
+    if (uploadedImageBase64) { 
+      bgStyle = `background-image: url('${uploadedImageBase64}'); background-size: cover; background-position: center;`; 
+      // Se tiver imagem, aplica um fundo semi-transparente pra não prejudicar a leitura do texto
+      overlay = `<div style="position:absolute; inset:0; background: rgba(0,0,0,0.4); z-index:0;"></div>`;
+    }
+
+    // Helpers
+    const v1Cutline = '<div class="cutline-v1 v1-only" style="z-index:1;"></div>';
+    const v2Cutline = '<div class="cutline-v2 v2-only" style="z-index:1;"></div><div class="crosshair tl v2-only" style="top:34px;left:34px;z-index:1;"></div><div class="crosshair br v2-only" style="bottom:34px;right:34px;z-index:1;"></div>';
+    const brandmarks = '<span class="brandmark" style="z-index:1;">olivia</span><span class="pageno" style="z-index:1;">01 / 05</span>';
+    const ringtag = '<div class="ringtag"><span class="dot">o</span><span class="h">olivia.arttattoo</span></div>';
+
+    if (tipo === 'feed') {
+      captureArea.innerHTML = `
+        <div class="render-board board-1080" id="post-node">
+          <div class="feed-imgzone" style="${bgStyle}">
+            ${!uploadedImageBase64 ? '<span class="feed-tag">FOTO DA TATTOO AQUI</span>' : ''}
+            <div class="stamp-v2 v2-only"><div class="stamp-inner"><span class="big">olivia</span><span>tattoo</span></div></div>
+          </div>
+          <div class="feed-caption">
+            <div class="eyebrow">${subtitulo}</div>
+            <h3 class="title">${titulo}</h3>
+            <div class="feed-cta">${cta}</div>
+          </div>
+        </div>
+      `;
+    } 
+    else if (tipo === 'c-capa') {
+      captureArea.innerHTML = `
+        <div class="render-board board-1350 dots" id="post-node" style="${bgStyle}">
+          ${overlay}
+          ${v1Cutline}${v2Cutline}
+          <span class="eyebrow" style="z-index:1; position:relative;">${subtitulo}</span>
+          <h3 class="title" style="z-index:1; position:relative;">${titulo}</h3>
+          <p class="body-txt" style="z-index:1; position:relative;">${cta}</p>
+          ${brandmarks}
+        </div>
+      `;
+    }
+    else if (tipo === 'c-meio') {
+      captureArea.innerHTML = `
+        <div class="render-board board-1350 alt dots" id="post-node" style="${bgStyle}">
+          ${overlay}
+          ${v1Cutline}${v2Cutline}
+          <div style="z-index:1; position:relative;">
+            <span class="badge-mito-v1 v1-only">${subtitulo}</span>
+            <span class="badge-mito-v2 v2-only"><span style="font-size:12px">✕</span> ${subtitulo}</span>
+          </div>
+          <h3 class="title" style="font-size:54px; z-index:1; position:relative;">${titulo}</h3>
+          <p class="body-txt" style="z-index:1; position:relative;">${cta}</p>
+          ${brandmarks.replace('01', '02')}
+        </div>
+      `;
+    }
+    else if (tipo === 'c-fim') {
+      captureArea.innerHTML = `
+        <div class="render-board board-1350 dots" id="post-node" style="justify-content:center; align-items:flex-start; ${bgStyle}">
+          ${overlay}
+          ${v1Cutline}${v2Cutline}
+          <span class="eyebrow" style="z-index:1; position:relative;">${subtitulo}</span>
+          <h3 class="title" style="z-index:1; position:relative;">${titulo}</h3>
+          <p class="body-txt" style="z-index:1; position:relative;">${cta}</p>
+          ${brandmarks.replace('01', '05')}
+        </div>
+      `;
+    }
+    else if (tipo === 's-caixa') {
+      const isV2 = currentTheme === 'v2';
+      const hasBg = uploadedImageBase64 ? 'has-bg' : '';
+      captureArea.innerHTML = `
+        <div class="render-board board-1920" id="post-node" style="${bgStyle}">
+          ${!uploadedImageBase64 ? v1Cutline + v2Cutline : ''}
+          <div class="s-safe-top">${ringtag}</div>
+          <div class="s-content ${hasBg}">
+            <span class="eyebrow">${subtitulo}</span>
+            <h3 class="title">${titulo}</h3>
+            <p class="body-txt">${cta}</p>
+            <div class="qbox">
+              <div class="lbl">Caixinha de perguntas</div>
+              <div class="ph">Escreva aqui...</div>
+            </div>
+          </div>
+          <div class="s-safe-bottom"><span class="swipe">Deslize e pergunte</span></div>
+        </div>
+      `;
+    }
+    else if (tipo === 's-enquete') {
+      const hasBg = uploadedImageBase64 ? 'has-bg' : '';
+      captureArea.innerHTML = `
+        <div class="render-board board-1920" id="post-node" style="${bgStyle}">
+          ${!uploadedImageBase64 ? v1Cutline + v2Cutline : ''}
+          <div class="s-safe-top">${ringtag}</div>
+          <div class="s-content ${hasBg}">
+            <span class="eyebrow">${subtitulo}</span>
+            <h3 class="title">${titulo}</h3>
+            <div class="poll-v1">
+              <div class="opt">${o1}</div>
+              <div class="opt">${o2}</div>
+              <div class="opt">${o3}</div>
+              <div class="opt">${o4}</div>
+            </div>
+          </div>
+          <div class="s-safe-bottom"><span class="swipe">Toque e vote</span></div>
+        </div>
+      `;
+    }
+    else if (tipo === 'reels') {
+      captureArea.innerHTML = `
+        <div class="render-board board-reels" id="post-node" style="${bgStyle}">
+          <div class="r-top"><div class="r-rec"><span class="d"></span>${subtitulo}</div></div>
+          <div class="r-play">
+            <svg class="v1-only" width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5z" fill="#E4C99A"/></svg>
+            <svg class="v2-only" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7L8 5z" fill="#9C3B2C"/></svg>
+          </div>
+          <div class="r-quote">
+            <div class="mark">“</div>
+            <h3 class="title">${titulo}</h3>
+            <div class="sig">${cta}</div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  document.fonts.ready.then(() => { updateUI(); });
+
+  function downloadImage() {
+    const btnMsg = document.getElementById('status-msg');
+    btnMsg.innerText = 'Gerando... aguarde.';
+    const node = document.getElementById('post-node');
+    
+    htmlToImage.toPng(node, { quality: 1.0, pixelRatio: 1 })
+    .then(function (dataUrl) {
+      const link = document.createElement('a');
+      link.download = 'criativo_olivia_tattoo.png';
+      link.href = dataUrl;
+      link.click();
+      btnMsg.innerText = '✅ Sucesso!';
+      setTimeout(() => btnMsg.innerText = '', 3000);
+    })
+    .catch(function (error) {
+      console.error(error);
+      btnMsg.innerText = '❌ Erro ao gerar imagem.';
+    });
+  }
+
+</script>
+</body>
+</html>

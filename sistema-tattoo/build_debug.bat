@@ -1,37 +1,33 @@
 @echo off
 echo ============================================
-echo   Compilando Sistema de Gestao - Olivia Tattoo
+echo   Compilando num VENV (Modo Rapido)
 echo ============================================
 echo.
 
-REM Verificar se PyInstaller está instalado
-pip show pyinstaller >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Instalando PyInstaller...
-    pip install pyinstaller
+if not exist venv_build\ (
+    echo Criando ambiente virtual limpo...
+    python -m venv venv_build
 )
 
-REM Instalar dependências
-echo Instalando dependencias...
-pip install -r requirements.txt
-
-REM Limpar build anterior
-if exist dist\ (
-    rmdir /s /q dist
-)
-if exist build\ (
-    rmdir /s /q build
-)
+echo Ativando venv e instalando dependencias (isso evita puxar gigabytes de lixo do seu PC)...
+call venv_build\Scripts\activate
+pip install -r requirements.txt pyinstaller
 
 echo.
-echo Gerando executavel...
+echo Limpando build anterior...
+if exist dist\ ( rmdir /s /q dist )
+if exist build\ ( rmdir /s /q build )
+
+echo.
+echo Gerando executavel super rapido...
 echo.
 
 pyinstaller ^
+    --clean ^
     --onefile ^
-    --windowed ^
-    --name "OliviaTattoo-Gestao" ^
+    --name "Sistema-OliviaTattoo" ^
     --icon "app_icon.ico" ^
+    --add-data "app_icon.ico;." ^
     --add-data "database;database" ^
     --add-data "utils;utils" ^
     --add-data "models;models" ^
@@ -47,14 +43,11 @@ pyinstaller ^
     main.py
 
 echo.
-if exist "dist\OliviaTattoo-Gestao.exe" (
+if exist "dist\Sistema-OliviaTattoo.exe" (
     echo ============================================
-    echo   Executavel gerado com sucesso!
-    echo.
-    echo   Localizacao: dist\OliviaTattoo-Gestao.exe
+    echo   Executavel gerado na velocidade da luz!
+    echo   Local: dist\Sistema-OliviaTattoo.exe
     echo ============================================
 ) else (
-    echo [ERROR] Falha ao gerar executavel.
+    echo [ERROR] Falha.
 )
-
-pause
