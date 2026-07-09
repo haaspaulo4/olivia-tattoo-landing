@@ -75,6 +75,42 @@ Este projeto está pronto para ser publicado na [Vercel](https://vercel.com/) em
 4. A Vercel detectará automaticamente que é um projeto **Vite**.
 5. Clique em **Deploy** e aguarde 30 segundos!
 
+## 💻 Sistema Interno (CRM & Gestão)
+
+Junto com a Landing Page, desenvolvemos um **Sistema Desktop de Gestão e CRM** exclusivo para o estúdio da Olivia. Ele fica na pasta `sistema-tattoo/` e foi construído em Python.
+
+### ✨ Funcionalidades do Sistema
+- **Gestão de Clientes e Agendamentos:** Controle completo da agenda e ficha de clientes.
+- **Automação de WhatsApp (Neonize):** Envio silencioso e em background de mensagens.
+  - *Boas-vindas* para novos clientes.
+  - *Confirmação de Agendamento* automático.
+  - Lembrete de *Cobrança* e saldo pendente.
+  - Mensagem de *Pós-Venda* com instruções de cicatrização.
+- **Assistente IA Integrado:** Chatbot para WhatsApp usando IA (Groq) para responder dúvidas automaticamente.
+- **Módulo Financeiro:** Controle de caixa, transações e relatórios em PDF.
+- **Interface Gráfica Moderna:** Desenvolvido com `customtkinter` (Dark Mode nativo).
+
+### 🚀 Como rodar o CRM localmente
+
+1. **Acesse a pasta do sistema:**
+   ```bash
+   cd sistema-tattoo
+   ```
+
+2. **Instale as dependências:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Inicie o Sistema:**
+   Você pode dar um clique duplo no arquivo `executar.bat` ou rodar via terminal:
+   ```bash
+   python main.py
+   ```
+
+4. **Conectar o WhatsApp:**
+   Ao abrir, acesse a aba "WhatsApp", clique em "Conectar WhatsApp" e escaneie o QR Code que aparecerá no terminal com o celular do estúdio.
+
 ---
 <div align="center">
   <p>Feito com paixão pela arte do código e da tatuagem. 🖤</p>
