@@ -855,6 +855,36 @@ a {
   grid-column: span 2;
 }
 
+.gallery-video {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: default;
+}
+
+.gallery-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.gallery-video:hover video {
+  transform: scale(1.05);
+}
+
+.gallery-video.tall {
+  grid-row: span 2;
+}
+
+.gallery-video.wide {
+  grid-column: span 2;
+}
+
+.gallery-video:hover .gallery-overlay {
+  opacity: 1;
+}
+
 .gallery-overlay {
   position: absolute;
   inset: 0;
